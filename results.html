@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recommendations</title>
+
+  <!-- Import Google Font “Oswald” -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* 1) Reset defaults */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      font-family: 'Oswald', sans-serif;
+    }
+
+    /* 2) Background gradient */
+    body {
+      background: linear-gradient(135deg, #000000, #444444, #FFFFFF);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    /* 3) Container holds main area */
+    .main‐wrapper {
+      flex: 1;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .main-content {
+      width: 100%;
+      max-width: 800px;
+      overflow-y: auto;
+    }
+
+    .back-btn {
+      color: #ddd;
+      font-weight: 500;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      transition: color 0.2s ease;
+    }
+    .back-btn:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    /* 4) History button (fixed in top right) */
+    .history-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background-color: #ffdd57;
+      border: none;
+      color: #000;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      z-index: 1001;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* 5) Collapsible sidebar */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 260px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fafafa;
+      padding: 1rem;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    #sidebar.open {
+      transform: translateX(0);
+    }
+    #sidebar h5 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #fff;
+      text-align: center;
+    }
+    #sidebar ul {
+      list-style-type: none;
+      padding-left: 0;
+      font-size: 0.9rem;
+    }
+    #sidebar li {
+      margin-bottom: 0.5rem;
+    }
+    #sidebar .search-query {
+      font-weight: 500;
+      color: #ffdd57;
+    }
+    #sidebar .rec-list {
+      margin-left: 0.5rem;
+      color: #ddd;
+      font-size: 0.85rem;
+    }
+    #sidebar .close-btn {
+      color: #fff;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      cursor: pointer;
+    }
+
+    /* 6) Headings and cards */
+    h2.text-center {
+      font-weight: 700;
+      font-size: 1.6rem;
+      margin: 1rem 0 0.75rem;
+      color: #fff;
+    }
+    h4.text-center {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 0.5rem 0 0.75rem;
+      color: #eee;
+    }
+
+    .card-cover {
+      background-color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      max-width: 10rem;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .card-cover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+    }
+    .card-cover img {
+      object-fit: cover;
+      height: 140px;
+      width: 100%;
+    }
+    .card-body {
+      background-color: #fff;
+      padding: 0.5rem;
+    }
+    .result-title {
+      font-weight: 600;
+      color: #222;
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.1;
+    }
+    .result-artist {
+      color: #666;
+      font-size: 0.8rem;
+      margin: 0;
+    }
+    .no-cover {
+      background-color: #fff;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+      font-size: 0.85rem;
+    }
+    .similar-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: nowrap;
+      margin-top: 0.5rem;
+    }
+    .text-muted {
+      color: #ccc !important;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 4) “History” toggle button -->
+  <button class="history-toggle" onclick="toggleSidebar()">History</button>
+
+  <!-- 5) Collapsible sidebar element -->
+  <div id="sidebar">
+    <button class="close-btn" onclick="toggleSidebar()">×</button>
+    <h5>Previous Searches</h5>
+    {% if history %}
+      <ul>
+        {% for entry in history %}
+          <li>
+            <span class="search-query">“{{ entry.input_title }}”</span>
+            <ul class="rec-list">
+              {% for title in entry.recommendations %}
+                <li>• {{ title }}</li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p style="color: #ddd; text-align: center;">No previous searches.</p>
+    {% endif %}
+  </div>
+
+  <!-- 3) Main content area -->
+  <div class="main‐wrapper">
+    <div class="main-content">
+      <a href="/" class="back-btn">&larr; Back to Search</a>
+
+      {% if not results.input_title %}
+        <h2 class="text-center text-danger">
+          Sorry, we couldn’t find that track.
+        </h2>
+        <p class="text-center text-muted">
+          Try a different spelling or “Artist - Track” exactly.
+        </p>
+      {% else %}
+        <h2 class="text-center">
+          Results for: "{{ results.input_title }}" by {{ results.input_artist }}
+        </h2>
+
+        {% if results.input_cover %}
+          <div class="card-cover shadow-sm mb-2">
+            <img src="{{ results.input_cover }}" alt="Input cover" />
+            <div class="card-body text-center">
+              <p class="result-title"><strong>{{ results.input_title }}</strong></p>
+              <p class="result-artist">{{ results.input_artist }}</p>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if results.similar %}
+          <h4 class="text-center">Here are 3 similar tracks:</h4>
+          <div class="similar-row">
+            {% for rec in results.similar %}
+              <a href="{{ rec.url }}" target="_blank" style="text-decoration: none;">
+                <div class="card-cover shadow-sm">
+                  {% if rec.cover_url %}
+                    <img src="{{ rec.cover_url }}" alt="Cover for {{ rec.title }}" />
+                  {% else %}
+                    <div class="no-cover">No Cover</div>
+                  {% endif %}
+                  <div class="card-body text-center">
+                    <p class="result-title"><strong>{{ rec.title }}</strong></p>
+                    <p class="result-artist">{{ rec.artist }}</p>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-center text-muted">
+            No similar tracks found. Try a different query.
+          </p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

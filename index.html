@@ -1,0 +1,116 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Music Recommender</title>
+
+  <!-- 1) Import Google Font “Oswald” for a sleek, bold look -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      font-family: 'Oswald', sans-serif;
+    }
+    .bg-blur {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://i.etsystatic.com/20383397/r/il/f64e45/5684862296/il_570xN.5684862296_n2de.jpg');
+      background-size: cover;
+      background-position: center 70%;
+      background-repeat: no-repeat;
+      filter: blur(8px);
+      z-index: -1;
+    }
+    .card-form {
+      border: none;
+      border-radius: 1rem;
+      padding: 2rem;
+      background-color: #ffffff;
+      max-width: 480px;
+      width: 100%;
+    }
+    .form-control {
+      border-radius: 50px;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      box-shadow: none;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+    }
+    .btn-primary {
+      background-color: #000000;
+      color: #ffffff;
+      border: none;
+      border-radius: 50px;
+      padding: 0.75rem 1.5rem;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary:hover {
+      background-color: #333333;
+    }
+    .text-muted {
+      color: #666 !important;
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.85rem;
+    }
+    .card-form h1 {
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blur"></div>
+  <div class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="card-form shadow-lg text-center">
+      <h1>Find Related Songs</h1>
+
+      {% if error %}
+        <div class="alert alert-danger text-center">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST">
+        <div class="mb-4">
+          <input
+            type="text"
+            name="query"
+            class="form-control form-control-lg"
+            placeholder="Enter Track Name"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-100">Search</button>
+      </form>
+      <p class="mt-3 text-center text-muted">
+        Example: “My Eyes Travis Scott” or just “My Eyes”
+      </p>
+    </div>
+  </div>
+</body>
+</html>
